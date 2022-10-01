@@ -3,27 +3,27 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Redirect,
+  Redirect
 } from 'react-router-dom'
 
 import { Navbar } from './app/Navbar'
 
-function App() {
+function App () {
   return (
     <Router>
       <Navbar />
-      <div className="App">
+      <div className='App'>
         <Switch>
           <Route
             exact
-            path="/"
+            path='/'
             render={() => (
               <section>
                 <h2>Welcome to the Redux Essentials example app!</h2>
               </section>
             )}
           />
-          <Redirect to="/" />
+          <Redirect to='/' />
         </Switch>
       </div>
     </Router>

@@ -21,7 +21,7 @@ const ARTIFICIAL_DELAY_MS = 2000
 // a consistent set of users / entries each time the page loads.
 // This can be reset by deleting this localStorage value,
 // or turned off by setting `useSeededRNG` to false.
-let useSeededRNG = true
+const useSeededRNG = true
 
 let rng = seedrandom()
 
@@ -42,7 +42,7 @@ if (useSeededRNG) {
   faker.seed(seedDate.getTime())
 }
 
-function getRandomInt(min, max) {
+function getRandomInt (min, max) {
   min = Math.ceil(min)
   max = Math.floor(max)
   return Math.floor(rng() * (max - min + 1)) + min
@@ -62,7 +62,7 @@ export const db = factory({
     lastName: String,
     name: String,
     username: String,
-    posts: manyOf('post'),
+    posts: manyOf('post')
   },
   post: {
     id: primaryKey(nanoid),
@@ -71,13 +71,13 @@ export const db = factory({
     content: String,
     reactions: oneOf('reaction'),
     comments: manyOf('comment'),
-    user: oneOf('user'),
+    user: oneOf('user')
   },
   comment: {
     id: primaryKey(String),
     date: String,
     text: String,
-    post: oneOf('post'),
+    post: oneOf('post')
   },
   reaction: {
     id: primaryKey(nanoid),
@@ -86,8 +86,8 @@ export const db = factory({
     heart: Number,
     rocket: Number,
     eyes: Number,
-    post: oneOf('post'),
-  },
+    post: oneOf('post')
+  }
 })
 
 const createUserData = () => {
@@ -98,7 +98,7 @@ const createUserData = () => {
     firstName,
     lastName,
     name: `${firstName} ${lastName}`,
-    username: faker.internet.userName(),
+    username: faker.internet.userName()
   }
 }
 
@@ -108,7 +108,7 @@ const createPostData = (user) => {
     date: faker.date.recent(RECENT_NOTIFICATIONS_DAYS).toISOString(),
     user,
     content: faker.lorem.paragraphs(),
-    reactions: db.reaction.create(),
+    reactions: db.reaction.create()
   }
 }
 
@@ -124,7 +124,7 @@ for (let i = 0; i < NUM_USERS; i++) {
 
 const serializePost = (post) => ({
   ...post,
-  user: post.user.id,
+  user: post.user.id
 })
 
 /* MSW REST API Handlers */
@@ -156,7 +156,7 @@ export const handlers = [
   }),
   rest.get('/fakeApi/posts/:postId', function (req, res, ctx) {
     const post = db.post.findFirst({
-      where: { id: { equals: req.params.postId } },
+      where: { id: { equals: req.params.postId } }
     })
     return res(ctx.delay(ARTIFICIAL_DELAY_MS), ctx.json(serializePost(post)))
   }),
@@ -164,7 +164,7 @@ export const handlers = [
     const { id, ...data } = req.body
     const updatedPost = db.post.update({
       where: { id: { equals: req.params.postId } },
-      data,
+      data
     })
     return res(
       ctx.delay(ARTIFICIAL_DELAY_MS),
@@ -174,7 +174,7 @@ export const handlers = [
 
   rest.get('/fakeApi/posts/:postId/comments', (req, res, ctx) => {
     const post = db.post.findFirst({
-      where: { id: { equals: req.params.postId } },
+      where: { id: { equals: req.params.postId } }
     })
     return res(
       ctx.delay(ARTIFICIAL_DELAY_MS),
@@ -186,7 +186,7 @@ export const handlers = [
     const postId = req.params.postId
     const reaction = req.body.reaction
     const post = db.post.findFirst({
-      where: { id: { equals: postId } },
+      where: { id: { equals: postId } }
     })
 
     const updatedPost = db.post.update({
@@ -194,9 +194,9 @@ export const handlers = [
       data: {
         reactions: {
           ...post.reactions,
-          [reaction]: (post.reactions[reaction] += 1),
-        },
-      },
+          [reaction]: (post.reactions[reaction] += 1)
+        }
+      }
     })
 
     return res(
@@ -207,7 +207,7 @@ export const handlers = [
   rest.get('/fakeApi/notifications', (req, res, ctx) => {
     const numNotifications = getRandomInt(1, 5)
 
-    let notifications = generateRandomNotifications(
+    const notifications = generateRandomNotifications(
       undefined,
       numNotifications,
       db
@@ -217,7 +217,7 @@ export const handlers = [
   }),
   rest.get('/fakeApi/users', (req, res, ctx) => {
     return res(ctx.delay(ARTIFICIAL_DELAY_MS), ctx.json(db.user.getAll()))
-  }),
+  })
 ]
 
 export const worker = setupWorker(...handlers)
@@ -270,11 +270,11 @@ socketServer.on('connection', (socket) => {
 const notificationTemplates = [
   'poked you',
   'says hi!',
-  `is glad we're friends`,
-  'sent you a gift',
+  'is glad we\'re friends',
+  'sent you a gift'
 ]
 
-function generateRandomNotifications(since, numNotifications, db) {
+function generateRandomNotifications (since, numNotifications, db) {
   const now = new Date()
   let pastDate
 
@@ -294,7 +294,7 @@ function generateRandomNotifications(since, numNotifications, db) {
       id: nanoid(),
       date: faker.date.between(pastDate, now).toISOString(),
       message: template,
-      user: user.id,
+      user: user.id
     }
   })
 
